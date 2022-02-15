@@ -54,14 +54,13 @@ class DataParser:
     def temporary_validator(value: str, _type: str):
         # print(f"i validate {value, _type}")
 
-        match _type:
-            case 'str':
-                return value
-            case 'int':
-                if value.isdigit() and '.' not in value:
-                    return int(value)
-            case 'float':
-                if value.isdigit() and '.' in value:
-                    return float(value)
-            case _:
-                return
+        if _type == 'str':
+            return value
+        elif _type == 'int':
+            if value.isdigit() and '.' not in value:
+                return int(value)
+        elif _type == 'float':
+            if value.isdigit() and '.' in value:
+                return float(value)
+        else:
+            return
