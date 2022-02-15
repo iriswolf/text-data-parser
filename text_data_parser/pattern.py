@@ -3,57 +3,42 @@ from collections import namedtuple
 
 class Pattern:
 
-    def __init__(self, text: str, validate: bool = True):
+    def __init__(self, text: str):
         """
         :param text: pattern text
         :param validate: validate pattern types?
         """
-        self.pattern = text
-        self.validate = validate
+        self.__pattern = text
 
-        self._parse_pattern(text)
+        self.__parsed_tokens = self.__create_pattern(text)
 
-    def _parse_pattern(self, pattern):
-        a = self._parse_tokens(pattern)
-        print(a)
+    def get_tokens(self) -> "__create_pattern":
+        """Возвращает уже готовые токены для обработки классом DataParser в виде (name, type, index)
+        name = имя токена
+        type = тип токена для валидации
+        index = индекс токена в list
 
-    def _parse_tokens(self, pattern: str):
-        tokens = []
-
-        previous_token: str | None = None
-        for i, s in enumerate(pattern):
-            if s == '<':
-                if previous_token == '<':  # Если токен повторился
-                    raise Exception("Найден открывающий токен '<', но перед ним не было найдено токена закрытия '>'")
-
-                previous_token = s
-                tokens.append((i, s))
-            elif s == '>':
-                """ В цикле проверяем, не было ли до этого закрывающего токена - открывающего """
-                if previous_token == '>' or previous_token is None:
-                    # Если прошлый токен был повторяющим этот или до этого токена не было токена открытия
-                    raise Exception("Найден закрывающий токен '>', но перед ним не был найден открывающий токен '<'")
-
-                previous_token = s
-                tokens.append((i, s))
-
-
+        надо разделить строку из которой будем парсить
         """
-        _tok = []
+        return self.__parsed_tokens
 
-        previous_index: int | None = None
-        for index, token in enumerate(tokens):
-            if index+1 == len(tokens):
-                break
-            if previous_index == index:
-                break
+    def __create_pattern(self, pattern: str) -> list[tuple[str, str, int]] | list:
+        tokens_ = []
 
-            previous_index = index
-            _tok.append((token, tokens[index+1]))
+        for i, t in enumerate(pattern.split()):
+            if t.startswith('<') and t.endswith('>'):  # Если строка начинается с < и заканчивается >
+                if t.count('<') != 1 or t.count('>') != 1:  # Если в токене больше чем 1 знак открытия/закрытия
+                    raise Exception(
+                        f"В токене {t!r} паттерна {pattern!r} должно быть по одному знаку открытия '<' и закрытия '>'")
 
-        #print(_tok)"""
-        return tokens
+                if t == '<>':
+                    raise Exception(
+                        f"В паттерне {pattern!r} должно быть имя переменной внутри токена {t!r}")
 
+                """ Добавляем дефолтный тип str если тип не был указан """
+                tkn_t = t[1:-1].split(':')
+                if len(tkn_t) == 1:
+                    tkn_t.append('str')
 
-if __name__ == '__main__':
-    pattern = Pattern("Привет меня зовут <name> и мне <age:int> лет, у меня есть <apple_val:int> яблок")
+                tokens_.append((*tkn_t, i))  # tuple(name, type, index)
+        return tokens_

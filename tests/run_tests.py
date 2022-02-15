@@ -1,14 +1,16 @@
+import time
+
 from text_data_parser import DataParser, Pattern
 
-print("Run tests")
+#print("-----Running test-----")
 
-
+"""
 dp = DataParser()
 pattern = Pattern("Привет меня зовут <name> и мне <age:int> лет, у меня есть <apple_val:int> яблок")
-"""
+""
 Как из этого получить что и куда вставлять?
 надо сделать карту
-"""
+""
 
 
 res1 = dp.parse(
@@ -24,3 +26,19 @@ res2 = dp.parse(
 
 print(res1)
 print(res2)
+"""
+
+text = "Привет, меня зовут Ahmed и мне 19 лет, у меня есть 40 яблок"
+
+
+dp = DataParser(validate_types=False)
+pattern = Pattern("Привет, меня зовут <name> и мне <age:int> лет, у меня есть <apple:int> яблок") # todo > click <
+
+
+s = time.time()
+parsed = dp.parse(pattern, text)
+e = time.time()
+
+print(parsed)
+print(f"{e-s}s")
+
